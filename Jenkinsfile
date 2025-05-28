@@ -39,10 +39,8 @@ pipeline {
                     def timestamp = sh(returnStdout: true, script: 'date +"%Y%m%d_%H%M%S"').trim()
                     def versionedBackupDir = "${BACKUP_DIR}/backup_${timestamp}"
 
-                    // Create backup directory
                     sh "mkdir -p ${versionedBackupDir}"
 
-                    // Copy .txt files to backup
                     sh """
                         for file in ${DEST_DIR}/*.txt; do
                             if [ -f "\$file" ]; then
@@ -65,7 +63,7 @@ pipeline {
                     sh """
                         find . -name '*.txt' -exec cp -v {} ${DEST_DIR} \\;
                         echo "Files after deployment:"
-                        ls -l ${DEST_DIR}/*.txt
+                        ls -l ${DEST_DIR}/*.txt || echo '⚠️ No .txt files deployed.'
                     """
                 }
             }
@@ -76,8 +74,12 @@ pipeline {
                 script {
                     echo "Verifying files in ${DEST_DIR}"
                     sh """
-                        ls -l ${DEST_DIR}/*.txt
-                        echo "Total files deployed: \$(ls -1 ${DEST_DIR}/*.txt | wc -l)"
+                        if compgen -G "${DEST_DIR}/*.txt" > /dev/null; then
+                            ls -l ${DEST_DIR}/*.txt
+                            echo "Total files deployed: \$(ls -1 ${DEST_DIR}/*.txt | wc -l)"
+                        else
+                            echo "⚠️ No .txt files found in ${DEST_DIR}"
+                        fi
                     """
                 }
             }
