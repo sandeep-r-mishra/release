@@ -24,7 +24,7 @@ pipeline {
                         extensions: [],
                         userRemoteConfigs: [[
                             url: 'https://github.com/sandeep-r-mishra/release.git',
-                            credentialsId: 'git-cred'
+                            credentialsId: 'Github'
                         ]]
                     ])
                     sh 'ls -la'
